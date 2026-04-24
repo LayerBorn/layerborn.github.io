@@ -834,20 +834,18 @@
       <form class="contact-form" onsubmit="handleForm(event)">
         <div class="form-field">
           <label>Your Name</label>
-          <input type="text" placeholder="John Doe" required />
+          <input type="text" name="name" placeholder="John Doe" required />
         </div>
         <div class="form-field">
           <label>Email</label>
-          <input type="email" placeholder="you@email.com" required />
+          <input type="email" name="email" placeholder="you@email.com" required />
         </div>
         <div class="form-field">
           <label>What are you looking for?</label>
-          <textarea rows="5" placeholder="Tell us about your custom order idea, or ask us anything..." required></textarea>
+          <textarea name="message" rows="5" placeholder="Tell us about your custom order idea, or ask us anything..." required></textarea>
         </div>
-        <button type="submit" class="form-submit">Send Message →</button>
-        <p id="form-msg" style="font-size:13px;color:var(--accent);display:none;margin-top:8px;">
-          ✓ Message sent! We'll get back to you soon.
-        </p>
+        <button type="submit" class="form-submit" id="form-btn">Send Message →</button>
+        <p id="form-msg" style="font-size:13px;color:var(--accent);display:none;margin-top:8px;"></p>
       </form>
     </div>
   </section>
@@ -980,13 +978,39 @@
     renderProducts();
 
     /* ── Contact form ── */
-    function handleForm(e) {
+    async function handleForm(e) {
       e.preventDefault();
-      document.getElementById("form-msg").style.display = "block";
-      e.target.reset();
-      setTimeout(() => {
-        document.getElementById("form-msg").style.display = "none";
-      }, 5000);
+      const form = e.target;
+      const btn = document.getElementById("form-btn");
+      const msg = document.getElementById("form-msg");
+
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+
+      try {
+        const res = await fetch("https://formspree.io/f/xlgaazyp", {
+          method: "POST",
+          headers: { "Accept": "application/json" },
+          body: new FormData(form)
+        });
+
+        if (res.ok) {
+          msg.style.color = "var(--accent)";
+          msg.textContent = "✓ Message sent! We'll get back to you soon.";
+          form.reset();
+        } else {
+          msg.style.color = "#ff4444";
+          msg.textContent = "Something went wrong. Please email us directly.";
+        }
+      } catch {
+        msg.style.color = "#ff4444";
+        msg.textContent = "Network error. Please try again.";
+      }
+
+      msg.style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Send Message →";
+      setTimeout(() => { msg.style.display = "none"; }, 6000);
     }
   </script>
 </body>
