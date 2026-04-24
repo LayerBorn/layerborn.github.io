@@ -831,22 +831,35 @@
       </div>
     </div>
     <div>
-      <form class="contact-form" onsubmit="handleForm(event)">
+      <form id="contact-form" class="contact-form">
+        <div data-fs-success style="display:none;font-size:13px;color:var(--accent);padding:12px;border:1px solid var(--accent);border-radius:2px;">
+          ✓ Message sent! We'll get back to you soon.
+        </div>
+        <div data-fs-error style="font-size:13px;color:#ff4444;"></div>
+
         <div class="form-field">
-          <label>Your Name</label>
-          <input type="text" name="name" placeholder="John Doe" required />
+          <label for="fs-name">Your Name</label>
+          <input type="text" id="fs-name" name="name" placeholder="John Doe" data-fs-field required />
+          <span class="fs-field-err" data-fs-error="name" style="font-size:12px;color:#ff4444;"></span>
         </div>
         <div class="form-field">
-          <label>Email</label>
-          <input type="email" name="email" placeholder="you@email.com" required />
+          <label for="fs-email">Email</label>
+          <input type="email" id="fs-email" name="email" placeholder="you@email.com" data-fs-field required />
+          <span class="fs-field-err" data-fs-error="email" style="font-size:12px;color:#ff4444;"></span>
         </div>
         <div class="form-field">
-          <label>What are you looking for?</label>
-          <textarea name="message" rows="5" placeholder="Tell us about your custom order idea, or ask us anything..." required></textarea>
+          <label for="fs-message">What are you looking for?</label>
+          <textarea id="fs-message" name="message" rows="5" placeholder="Tell us about your custom order idea, or ask us anything..." data-fs-field required></textarea>
+          <span class="fs-field-err" data-fs-error="message" style="font-size:12px;color:#ff4444;"></span>
         </div>
-        <button type="submit" class="form-submit" id="form-btn">Send Message →</button>
-        <p id="form-msg" style="font-size:13px;color:var(--accent);display:none;margin-top:8px;"></p>
+        <button type="submit" class="form-submit" data-fs-submit-btn>Send Message →</button>
       </form>
+
+      <script>
+        window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+        formspree('initForm', { formElement: '#contact-form', formId: 'xlgaazyp' });
+      </script>
+      <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
     </div>
   </section>
 
@@ -976,42 +989,7 @@
     }
 
     renderProducts();
-
-    /* ── Contact form ── */
-    async function handleForm(e) {
-      e.preventDefault();
-      const form = e.target;
-      const btn = document.getElementById("form-btn");
-      const msg = document.getElementById("form-msg");
-
-      btn.disabled = true;
-      btn.textContent = "Sending…";
-
-      try {
-        const res = await fetch("https://formspree.io/f/xlgaazyp", {
-          method: "POST",
-          headers: { "Accept": "application/json" },
-          body: new FormData(form)
-        });
-
-        if (res.ok) {
-          msg.style.color = "var(--accent)";
-          msg.textContent = "✓ Message sent! We'll get back to you soon.";
-          form.reset();
-        } else {
-          msg.style.color = "#ff4444";
-          msg.textContent = "Something went wrong. Please email us directly.";
-        }
-      } catch {
-        msg.style.color = "#ff4444";
-        msg.textContent = "Network error. Please try again.";
-      }
-
-      msg.style.display = "block";
-      btn.disabled = false;
-      btn.textContent = "Send Message →";
-      setTimeout(() => { msg.style.display = "none"; }, 6000);
-    }
+    /* Contact form is now handled by the Formspree AJAX SDK — see inline init above. */
   </script>
 </body>
 </html>
