@@ -255,7 +255,7 @@
 
     .about-stats {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 1px;
       background: var(--border);
       border: 1px solid var(--border);
@@ -302,9 +302,34 @@
     .feature:hover { background: var(--surface2); }
 
     .feature-icon {
-      font-size: 22px;
       flex-shrink: 0;
       margin-top: 2px;
+      color: var(--accent);
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feature-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .contact-link-icon {
+      color: var(--accent);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+    }
+
+    .contact-link-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .feature-title {
@@ -573,8 +598,6 @@
       background: var(--surface2);
     }
 
-    .contact-link-icon { font-size: 20px; }
-
     .contact-link-text span {
       display: block;
       font-size: 11px;
@@ -677,7 +700,7 @@
       nav ul li:not(:last-child) { display: none; }
       #home, #about, #shop, #contact, footer { padding-left: 24px; padding-right: 24px; }
       #about, #contact { grid-template-columns: 1fr; gap: 48px; }
-      .about-stats { grid-template-columns: 1fr 1fr; }
+      .about-stats { grid-template-columns: 1fr; }
       .section-header { flex-direction: column; align-items: flex-start; gap: 20px; }
     }
   </style>
@@ -734,47 +757,51 @@
       </p>
       <div class="about-stats">
         <div class="stat">
-          <div class="stat-num">AMS</div>
-          <div class="stat-label">Multi-Color System</div>
-        </div>
-        <div class="stat">
-          <div class="stat-num">8+</div>
-          <div class="stat-label">Materials Available</div>
-        </div>
-        <div class="stat">
           <div class="stat-num">PDX</div>
           <div class="stat-label">Portland Made</div>
         </div>
         <div class="stat">
+          <div class="stat-num">USA</div>
+          <div class="stat-label">Ships Nationwide</div>
+        </div>
+        <div class="stat">
           <div class="stat-num">∞</div>
-          <div class="stat-label">Custom Options</div>
+          <div class="stat-label">Custom Designs</div>
         </div>
       </div>
     </div>
     <div class="about-features">
       <div class="feature">
-        <div class="feature-icon">🎨</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2a10 10 0 0 0 0 20c1.5 0 2-1 2-2 0-1.5-1-1.5-1-3 0-1 1-2 2-2h2a5 5 0 0 0 5-5c0-5-4-8-10-8z"/></svg>
+        </div>
         <div>
           <div class="feature-title">Multi-Color Printing</div>
-          <div class="feature-desc">Up to 4 colors per print using a professional automatic material system — no hand-painting required.</div>
+          <div class="feature-desc">Up to 4 colors per print, crisp layer lines, no hand-painting required.</div>
         </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">⚙️</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+        </div>
         <div>
           <div class="feature-title">Functional Designs</div>
           <div class="feature-desc">Built to last, not just look good. Every piece is designed with real-world use in mind.</div>
         </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">✏️</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+        </div>
         <div>
           <div class="feature-title">Custom Orders</div>
-          <div class="feature-desc">Got a specific idea? We design and print custom pieces from scratch. Reach out to get started.</div>
+          <div class="feature-desc">Got a specific idea? We'll design and print it from scratch. Reach out for a quote.</div>
         </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">📦</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
         <div>
           <div class="feature-title">Ships Nationwide</div>
           <div class="feature-desc">Carefully packaged and shipped anywhere in the US. Local Portland pickup also available.</div>
@@ -808,21 +835,27 @@
       </p>
       <div class="contact-links">
         <a href="mailto:layerborn0@gmail.com" class="contact-link">
-          <span class="contact-link-icon">✉️</span>
+          <span class="contact-link-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </span>
           <div class="contact-link-text">
             <span>Email</span>
             layerborn0@gmail.com
           </div>
         </a>
         <a href="https://etsy.com" target="_blank" class="contact-link">
-          <span class="contact-link-icon">🛍️</span>
+          <span class="contact-link-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </span>
           <div class="contact-link-text">
             <span>Etsy Shop</span>
             Message us on Etsy
           </div>
         </a>
         <a href="#" class="contact-link">
-          <span class="contact-link-icon">📍</span>
+          <span class="contact-link-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
           <div class="contact-link-text">
             <span>Location</span>
             Portland, Oregon
@@ -853,7 +886,7 @@
   <!-- FOOTER -->
   <footer>
     <div class="footer-logo">LAYER<span>BORN</span></div>
-    <div class="footer-copy">© 2025 Layerborn · Portland, OR</div>
+    <div class="footer-copy">© 2026 Layerborn · Portland, OR</div>
   </footer>
 
   <script>
