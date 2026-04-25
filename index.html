@@ -462,7 +462,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 48px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted, #888);
       background: linear-gradient(135deg, #1e1e1e, #252525);
     }
 
@@ -899,8 +902,7 @@
          desc     : Short description shown on card
          price    : Price string, e.g. "$18.00"
          etsy     : Your Etsy listing URL (or "#" until you have one)
-         image    : URL to product photo (or leave "" for emoji placeholder)
-         emoji    : Shown if no image is set
+         image    : URL to product photo (or leave "" for a text placeholder)
          badge    : Optional ribbon text like "New" or "Popular" (or "")
     ============================================================ */
     const PRODUCTS = [
@@ -911,7 +913,6 @@
         price: "$14.00",
         etsy: "https://etsy.com",
         image: "",
-        emoji: "🟠",
         badge: "Popular"
       },
       {
@@ -921,7 +922,6 @@
         price: "$7.00",
         etsy: "https://etsy.com",
         image: "",
-        emoji: "✏️",
         badge: ""
       },
       {
@@ -931,7 +931,6 @@
         price: "$14.00",
         etsy: "https://etsy.com",
         image: "",
-        emoji: "🗂️",
         badge: ""
       },
       {
@@ -941,7 +940,6 @@
         price: "$9.00",
         etsy: "https://etsy.com",
         image: "",
-        emoji: "🗄️",
         badge: "New"
       },
       {
@@ -951,7 +949,6 @@
         price: "$9.00",
         etsy: "https://etsy.com",
         image: "",
-        emoji: "🧼",
         badge: ""
       },
       {
@@ -961,7 +958,6 @@
         price: "$16.00",
         etsy: "https://etsy.com",
         image: "",
-        emoji: "📚",
         badge: ""
       },
       {
@@ -971,7 +967,6 @@
         price: "Quote",
         etsy: "#contact",
         image: "",
-        emoji: "💬",
         badge: "Ask Us"
       }
     ];
@@ -1011,7 +1006,7 @@
           <div class="product-img-wrap">
             ${p.image
               ? `<img class="product-img" src="${p.image}" alt="${p.name}" loading="lazy"/>`
-              : `<div class="product-img-placeholder">${p.emoji}</div>`
+              : `<div class="product-img-placeholder">${p.category}</div>`
             }
             ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ""}
           </div>
@@ -1052,7 +1047,7 @@
 
         if (res.ok) {
           msg.style.color = "var(--accent)";
-          msg.textContent = "✓ Message sent! Check your inbox for a confirmation.";
+          msg.textContent = "Message sent! Check your inbox for a confirmation.";
           form.reset();
         } else if (data.errors && data.errors.length) {
           msg.style.color = "#ff4444";
