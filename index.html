@@ -880,6 +880,7 @@
           <label for="fs-message">What are you looking for?</label>
           <textarea id="fs-message" name="message" rows="5" placeholder="Tell us about your custom order idea, or ask us anything..." required></textarea>
         </div>
+        <input type="text" name="_honeypot" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true" />
         <button type="submit" class="form-submit" id="form-btn">Send Message →</button>
         <p id="form-msg" style="font-size:13px;display:none;margin-top:8px;"></p>
       </form>
@@ -1026,6 +1027,11 @@
     renderProducts();
 
     /* ── Contact form (AJAX → Formspree) ── */
+    /* Management app URL — also receives a copy of the form so it can
+       forward to Discord. If the URL ever changes (cloudflared restart),
+       update this constant. */
+    const MGMT_API = "https://controlled-results-referral-finances.trycloudflare.com/api";
+
     document.getElementById("contact-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       const form = e.target;
@@ -1036,11 +1042,27 @@
       btn.textContent = "Sending…";
       msg.style.display = "none";
 
+      const fd = new FormData(form);
+
+      // Fire-and-forget: forward a copy to the management app for Discord.
+      // Failure here doesn't affect the user — Formspree (email) is the
+      // source of truth for "did the message land".
+      fetch(MGMT_API + "/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name:       fd.get("name"),
+          email:      fd.get("email"),
+          message:    fd.get("message"),
+          _honeypot:  fd.get("_honeypot") || "",
+        }),
+      }).catch(() => { /* silent */ });
+
       try {
         const res = await fetch(form.action, {
           method: "POST",
           headers: { "Accept": "application/json" },
-          body: new FormData(form)
+          body: fd
         });
         const data = await res.json().catch(() => ({}));
         console.log("Formspree response:", res.status, data);
