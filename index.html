@@ -972,30 +972,73 @@
       }
     ];
 
-    /* ── Build filters ── */
-    const categories = ["All", ...new Set(PRODUCTS.map(p => p.category))];
+    /* The "Custom Order" entry isn't a real product — it's a CTA that
+       always shows alongside whatever's been published from the management
+       app. Pinned locally so it's always there. */
+    const CUSTOM_ORDER_ENTRY = {
+      name: "Custom Order",
+      category: "Custom",
+      desc: "Have something specific in mind? We'll design and print it. Message us to get a quote.",
+      price: "Quote",
+      etsy: "#contact",
+      image: "",
+      badge: "Ask Us",
+    };
+
+    /* PRODUCTS starts with the hardcoded fallbacks above (in case the
+       management app is unreachable), then gets replaced once the API
+       responds with the live published list. */
+    const FALLBACK = PRODUCTS.slice();
+    let LIVE_PRODUCTS = FALLBACK;
+
+    function fmtPrice(cents) {
+      if (cents == null) return "Quote";
+      return "$" + (cents / 100).toFixed(2);
+    }
+
+    /* Convert API row to the shape this script expects. */
+    function apiToProduct(p) {
+      return {
+        name:     p.name,
+        category: p.category || "Other",
+        desc:     p.description || "",
+        price:    fmtPrice(p.price_cents),
+        etsy:     p.etsy_url || "#contact",
+        image:    p.image ? (MGMT_API_BASE + p.image) : "",
+        badge:    p.badge || "",
+      };
+    }
+
+    /* Storefront calls the management app at this base URL. Update it if
+       the cloudflared tunnel URL ever changes. */
+    const MGMT_API_BASE = "https://controlled-results-referral-finances.trycloudflare.com";
+
     const filterContainer = document.getElementById("filters");
     let activeFilter = "All";
 
-    categories.forEach(cat => {
-      const btn = document.createElement("button");
-      btn.className = "filter-btn" + (cat === "All" ? " active" : "");
-      btn.textContent = cat;
-      btn.addEventListener("click", () => {
-        activeFilter = cat;
-        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        renderProducts();
+    function rebuildFilters() {
+      const cats = ["All", ...new Set(LIVE_PRODUCTS.map(p => p.category))];
+      filterContainer.innerHTML = "";
+      cats.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.className = "filter-btn" + (cat === activeFilter ? " active" : "");
+        btn.textContent = cat;
+        btn.addEventListener("click", () => {
+          activeFilter = cat;
+          document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderProducts();
+        });
+        filterContainer.appendChild(btn);
       });
-      filterContainer.appendChild(btn);
-    });
+    }
 
     /* ── Render products ── */
     function renderProducts() {
       const grid = document.getElementById("product-grid");
       const filtered = activeFilter === "All"
-        ? PRODUCTS
-        : PRODUCTS.filter(p => p.category === activeFilter);
+        ? LIVE_PRODUCTS
+        : LIVE_PRODUCTS.filter(p => p.category === activeFilter);
 
       if (filtered.length === 0) {
         grid.innerHTML = '<div class="no-products">No products in this category yet.</div>';
@@ -1024,14 +1067,26 @@
       `).join("");
     }
 
+    rebuildFilters();
     renderProducts();
 
-    /* ── Contact form (AJAX → Formspree) ── */
-    /* Management app URL — also receives a copy of the form so it can
-       forward to Discord. If the URL ever changes (cloudflared restart),
-       update this constant. */
-    const MGMT_API = "https://controlled-results-referral-finances.trycloudflare.com/api";
+    /* Replace the fallback list with whatever the management app says is
+       published. If the fetch fails (app offline, tunnel changed, etc.)
+       the fallback list stays visible so the page never goes empty. */
+    fetch(MGMT_API_BASE + "/api/public/products")
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(rows => {
+        if (!Array.isArray(rows)) return;
+        LIVE_PRODUCTS = rows.map(apiToProduct).concat([CUSTOM_ORDER_ENTRY]);
+        rebuildFilters();
+        renderProducts();
+      })
+      .catch(err => {
+        console.warn("Could not load live product list, using fallback:", err);
+      });
 
+    /* ── Contact form (AJAX → Formspree) ── */
+    /* Contact form: posts to Formspree (email) and management app (Discord). */
     document.getElementById("contact-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       const form = e.target;
@@ -1047,7 +1102,7 @@
       // Fire-and-forget: forward a copy to the management app for Discord.
       // Failure here doesn't affect the user — Formspree (email) is the
       // source of truth for "did the message land".
-      fetch(MGMT_API + "/contact", {
+      fetch(MGMT_API_BASE + "/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
