@@ -717,7 +717,7 @@
       <li><a href="#about">About</a></li>
       <li><a href="#shop">Shop</a></li>
       <li><a href="#contact">Contact</a></li>
-      <li><a href="https://etsy.com" target="_blank" class="nav-cta">Etsy Store ↗</a></li>
+      <li><a href="#contact" data-etsy-shop-link class="nav-cta">Etsy Store ↗</a></li>
     </ul>
   </nav>
 
@@ -820,7 +820,7 @@
         <div class="section-label">Products</div>
         <h2 class="section-title">THE SHOP</h2>
       </div>
-      <a href="https://etsy.com" target="_blank" class="etsy-link">View on Etsy ↗</a>
+      <a href="#contact" data-etsy-shop-link class="etsy-link">View on Etsy ↗</a>
     </div>
 
     <div class="shop-filters" id="filters"></div>
@@ -846,7 +846,7 @@
             layerborn0@gmail.com
           </div>
         </a>
-        <a href="https://etsy.com" target="_blank" class="contact-link">
+        <a href="#contact" data-etsy-shop-link class="contact-link">
           <span class="contact-link-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           </span>
@@ -855,7 +855,7 @@
             Message us on Etsy
           </div>
         </a>
-        <a href="#" class="contact-link">
+        <div class="contact-link" style="cursor: default;">
           <span class="contact-link-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </span>
@@ -863,7 +863,7 @@
             <span>Location</span>
             Portland, Oregon
           </div>
-        </a>
+        </div>
       </div>
     </div>
     <div>
@@ -895,86 +895,51 @@
 
   <script>
     /* ============================================================
-       PRODUCTS — Edit this array to add / remove / change items!
+       ETSY_SHOP_URL — paste your shop URL here once Etsy is live.
+       Until then it stays as "#contact" so visitors who click any
+       "Etsy Store" / "View on Etsy" button land on the contact form
+       instead of Etsy's homepage.
 
-       Fields:
-         name     : Product name
-         category : Used for filter buttons (e.g. "Coasters", "Holders", "Custom")
-         desc     : Short description shown on card
-         price    : Price string, e.g. "$18.00"
-         etsy     : Your Etsy listing URL (or "#" until you have one)
-         image    : URL to product photo (or leave "" for a text placeholder)
-         badge    : Optional ribbon text like "New" or "Popular" (or "")
+       Example once you create the shop:
+         const ETSY_SHOP_URL = "https://www.etsy.com/shop/Layerborn";
     ============================================================ */
-    const PRODUCTS = [
-      {
-        name: "Multi-Color Coaster Set (4-Pack)",
-        category: "Coasters",
-        desc: "Vibrant 4-color coasters, durable PETG. Custom colors available.",
-        price: "$14.00",
-        etsy: "https://etsy.com",
-        image: "",
-        badge: "Popular"
-      },
-      {
-        name: "Custom Name Coaster",
-        category: "Coasters",
-        desc: "Personalized single coaster with your name or logo. Great gift idea.",
-        price: "$7.00",
-        etsy: "https://etsy.com",
-        image: "",
-        badge: ""
-      },
-      {
-        name: "Desk Organizer",
-        category: "Decor",
-        desc: "Modular multi-color desk organizer. Holds pens, cards, and small items.",
-        price: "$14.00",
-        etsy: "https://etsy.com",
-        image: "",
-        badge: ""
-      },
-      {
-        name: "USB & SD Card Holder",
-        category: "Holders",
-        desc: "Keep your desk organized with a multi-slot holder for USB drives and SD cards. Clean, minimal design.",
-        price: "$9.00",
-        etsy: "https://etsy.com",
-        image: "",
-        badge: "New"
-      },
-      {
-        name: "Soap Holder",
-        category: "Decor",
-        desc: "Stylish multi-color soap dish designed to drain and dry. Built to last in wet environments.",
-        price: "$9.00",
-        etsy: "https://etsy.com",
-        image: "",
-        badge: ""
-      },
-      {
-        name: "Bookend Set",
-        category: "Decor",
-        desc: "Sturdy, weighted multi-color bookends to keep your shelf looking sharp. Sold as a pair.",
-        price: "$16.00",
-        etsy: "https://etsy.com",
-        image: "",
-        badge: ""
-      },
-      {
-        name: "Custom Order",
-        category: "Custom",
-        desc: "Have something specific in mind? We'll design and print it. Message us to get a quote.",
-        price: "Quote",
-        etsy: "#contact",
-        image: "",
-        badge: "Ask Us"
-      }
-    ];
+    const ETSY_SHOP_URL = "#contact";
+    const HAS_ETSY_SHOP = ETSY_SHOP_URL && !ETSY_SHOP_URL.startsWith("#");
 
-    /* The "Custom Order" entry isn't a real product — it's a CTA that
-       always shows alongside whatever's been published from the management
-       app. Pinned locally so it's always there. */
+    /* Wire up every site-wide "Etsy Store" / "View on Etsy" link to
+       use the constant above. Hide them gracefully if the shop URL
+       isn't set yet, so visitors aren't sent to a dead link. */
+    document.querySelectorAll('[data-etsy-shop-link]').forEach(a => {
+      a.href = ETSY_SHOP_URL;
+      if (HAS_ETSY_SHOP) {
+        a.target = "_blank";
+        a.rel    = "noreferrer";
+      } else {
+        // No shop yet → repurpose the button as a contact CTA so the
+        // copy isn't misleading.
+        if (a.classList.contains('nav-cta'))   a.textContent = 'Custom Orders →';
+        if (a.classList.contains('etsy-link')) a.textContent = 'Custom Orders →';
+        // For the contact-section card, swap "Etsy Shop / Message us on Etsy"
+        // for "Custom Orders / Message us about your idea".
+        if (a.classList.contains('contact-link')) {
+          const t = a.querySelector('.contact-link-text');
+          if (t) {
+            const label  = t.querySelector('span');
+            if (label)   label.textContent = 'Custom Orders';
+            // Replace the trailing text node ("Message us on Etsy")
+            const last = t.lastChild;
+            if (last && last.nodeType === 3) last.textContent = 'Message us about your idea';
+          }
+        }
+      }
+    });
+
+    /* ============================================================
+       FALLBACK product list — only shown if the management app's
+       /api/public/products endpoint is unreachable. Kept minimal
+       (just a "Custom Order" CTA) so visitors never see broken
+       Etsy links pointing nowhere.
+    ============================================================ */
     const CUSTOM_ORDER_ENTRY = {
       name: "Custom Order",
       category: "Custom",
@@ -984,11 +949,8 @@
       image: "",
       badge: "Ask Us",
     };
-
-    /* PRODUCTS starts with the hardcoded fallbacks above (in case the
-       management app is unreachable), then gets replaced once the API
-       responds with the live published list. */
-    const FALLBACK = PRODUCTS.slice();
+    const PRODUCTS  = [CUSTOM_ORDER_ENTRY];
+    const FALLBACK  = PRODUCTS.slice();
     let LIVE_PRODUCTS = FALLBACK;
 
     function fmtPrice(cents) {
@@ -1045,8 +1007,14 @@
         return;
       }
 
-      grid.innerHTML = filtered.map(p => `
-        <a href="${p.etsy}" target="_blank" class="product-card">
+      grid.innerHTML = filtered.map(p => {
+        // Only open external (real) URLs in a new tab; keep on-page anchors
+        // (#contact for Custom Order / unlisted items) in the same tab so
+        // smooth scroll works.
+        const isExternal = p.etsy && /^https?:\/\//i.test(p.etsy);
+        const target = isExternal ? ' target="_blank" rel="noreferrer"' : '';
+        return `
+        <a href="${p.etsy}"${target} class="product-card">
           <div class="product-img-wrap">
             ${p.image
               ? `<img class="product-img" src="${p.image}" alt="${p.name}" loading="lazy"/>`
@@ -1064,7 +1032,7 @@
             </div>
           </div>
         </a>
-      `).join("");
+      `;}).join("");
     }
 
     rebuildFilters();
