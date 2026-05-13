@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — Layerborn</title>
+  <meta name="description" content="Get in touch about a custom 3D printing order or a question about an existing one." />
+  <meta name="theme-color" content="#0d0d0d" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="index.html" class="nav-logo">LAYER<span>BORN</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="nav-cta">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div class="section-label">Contact</div>
+    <h1 class="page-hero">Let's <span class="accent">talk</span>.</h1>
+    <p class="page-sub">
+      Custom order, question about an existing order, or just want to say hi —
+      send a message and you'll hear back within a day, usually faster.
+    </p>
+
+    <div class="contact-grid">
+      <div>
+        <h2 class="section-title" style="font-size:32px; margin-bottom:8px;">Get in touch</h2>
+        <p style="font-size:14px; color:var(--muted); line-height:1.7;">
+          Most replies come from the same person who prints your stuff. No
+          contact forms going to a void.
+        </p>
+
+        <div class="contact-links">
+          <a href="mailto:layerborn0@gmail.com" class="contact-link">
+            <span class="contact-link-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="3" y="5" width="18" height="14" rx="1"/>
+                <path d="M3 7l9 6 9-6"/>
+              </svg>
+            </span>
+            <div class="contact-link-text">
+              <span>Email</span>
+              layerborn0@gmail.com
+            </div>
+          </a>
+          <a href="https://www.etsy.com/" target="_blank" rel="noopener" class="contact-link">
+            <span class="contact-link-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M6 6h12v12H6z"/>
+                <path d="M9 9h6v6H9z"/>
+              </svg>
+            </span>
+            <div class="contact-link-text">
+              <span>Etsy</span>
+              View our shop →
+            </div>
+          </a>
+          <div class="contact-link" style="cursor:default;">
+            <span class="contact-link-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 21s-7-4.5-7-10a7 7 0 1114 0c0 5.5-7 10-7 10z"/>
+                <circle cx="12" cy="11" r="2.5"/>
+              </svg>
+            </span>
+            <div class="contact-link-text">
+              <span>Location</span>
+              Portland, Oregon · USA
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form id="contact-form" class="contact-form" action="https://formspree.io/f/xlgaazyp" method="POST">
+        <h2 class="section-title" style="font-size:32px; margin-bottom:16px;">Send a message</h2>
+        <div class="form-field">
+          <label for="fs-name">Name</label>
+          <input type="text" id="fs-name" name="name" placeholder="John Doe" required />
+        </div>
+        <div class="form-field">
+          <label for="fs-email">Email</label>
+          <input type="email" id="fs-email" name="email" placeholder="you@email.com" required />
+        </div>
+        <div class="form-field">
+          <label for="fs-message">What are you looking for?</label>
+          <textarea id="fs-message" name="message" rows="6"
+            placeholder="Tell us about your custom order idea, or ask us anything..." required></textarea>
+        </div>
+        <input type="text" name="_honeypot" tabindex="-1" autocomplete="off"
+          style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true" />
+        <button type="submit" class="form-submit" id="form-btn">Send Message →</button>
+        <p id="form-msg" style="font-size:13px; display:none; margin-top:8px;"></p>
+      </form>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <a href="index.html" class="footer-logo">LAYER<span>BORN</span></a>
+    <ul class="footer-links">
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 Layerborn · Portland, OR</div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

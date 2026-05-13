@@ -3,1114 +3,136 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Layerborn — Multi-Color 3D Printing</title>
+  <title>Layerborn — Custom Multi-Color 3D Printing</title>
+  <meta name="description" content="Functional and decorative multi-color 3D prints from original designs. Custom orders welcome." />
+  <meta name="theme-color" content="#0d0d0d" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #0d0d0d;
-      --surface: #161616;
-      --surface2: #1e1e1e;
-      --border: #2a2a2a;
-      --accent: #ff5c1a;
-      --accent2: #ff8c55;
-      --text: #f0ece6;
-      --muted: #888;
-      --font-display: 'Bebas Neue', sans-serif;
-      --font-body: 'Outfit', sans-serif;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-body);
-      font-weight: 300;
-      overflow-x: hidden;
-    }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 48px;
-      background: rgba(13,13,13,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .nav-logo {
-      font-family: var(--font-display);
-      font-size: 28px;
-      letter-spacing: 4px;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .nav-logo span { color: var(--accent); }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 36px;
-    }
-
-    nav ul a {
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
-
-    nav ul a:hover { color: var(--text); }
-
-    .nav-cta {
-      background: var(--accent);
-      color: #000 !important;
-      padding: 8px 20px;
-      border-radius: 2px;
-      font-weight: 600 !important;
-      transition: background 0.2s !important;
-    }
-
-    .nav-cta:hover { background: var(--accent2) !important; color: #000 !important; }
-
-    /* ── HERO ── */
-    #home {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 120px 48px 80px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 60% at 80% 40%, rgba(255,92,26,0.08) 0%, transparent 70%),
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 39px,
-          rgba(255,255,255,0.02) 39px,
-          rgba(255,255,255,0.02) 40px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 39px,
-          rgba(255,255,255,0.02) 39px,
-          rgba(255,255,255,0.02) 40px
-        );
-      pointer-events: none;
-    }
-
-    .hero-tag {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 24px;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.2s forwards;
-    }
-
-    .hero-title {
-      font-family: var(--font-display);
-      font-size: clamp(72px, 11vw, 160px);
-      line-height: 0.92;
-      letter-spacing: 2px;
-      margin-bottom: 32px;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.35s forwards;
-    }
-
-    .hero-title .line2 {
-      color: transparent;
-      -webkit-text-stroke: 1.5px rgba(240,236,230,0.25);
-    }
-
-    .hero-title .accent { color: var(--accent); }
-
-    .hero-sub {
-      max-width: 480px;
-      font-size: 16px;
-      line-height: 1.7;
-      color: var(--muted);
-      margin-bottom: 48px;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.5s forwards;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.65s forwards;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      background: var(--accent);
-      color: #000;
-      font-family: var(--font-body);
-      font-weight: 600;
-      font-size: 13px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 14px 32px;
-      border-radius: 2px;
-      transition: background 0.2s, transform 0.15s;
-    }
-
-    .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
-
-    .btn-secondary {
-      display: inline-block;
-      color: var(--muted);
-      font-size: 13px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-      transition: color 0.2s, border-color 0.2s;
-    }
-
-    .btn-secondary:hover { color: var(--text); border-color: var(--text); }
-
-    .hero-scroll {
-      position: absolute;
-      bottom: 40px;
-      left: 48px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      opacity: 0;
-      animation: fadeUp 0.6s 0.9s forwards;
-    }
-
-    .scroll-line {
-      width: 40px;
-      height: 1px;
-      background: var(--accent);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    /* ── ABOUT ── */
-    #about {
-      padding: 120px 48px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-      border-top: 1px solid var(--border);
-    }
-
-    .about-label {
-      font-size: 11px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 20px;
-    }
-
-    .about-title {
-      font-family: var(--font-display);
-      font-size: clamp(40px, 5vw, 72px);
-      line-height: 1;
-      margin-bottom: 24px;
-    }
-
-    .about-text {
-      font-size: 15px;
-      line-height: 1.8;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-
-    .about-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      margin-top: 48px;
-    }
-
-    .stat {
-      background: var(--surface);
-      padding: 28px 24px;
-    }
-
-    .stat-num {
-      font-family: var(--font-display);
-      font-size: 48px;
-      color: var(--accent);
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .about-features {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-    }
-
-    .feature {
-      background: var(--surface);
-      padding: 28px 28px;
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      transition: background 0.2s;
-    }
-
-    .feature:hover { background: var(--surface2); }
-
-    .feature-icon {
-      flex-shrink: 0;
-      margin-top: 2px;
-      color: var(--accent);
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .feature-icon svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .contact-link-icon {
-      color: var(--accent);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-    }
-
-    .contact-link-icon svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .feature-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .feature-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    /* ── SHOP ── */
-    #shop {
-      padding: 120px 48px;
-      border-top: 1px solid var(--border);
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 60px;
-    }
-
-    .section-label {
-      font-size: 11px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-family: var(--font-display);
-      font-size: clamp(40px, 5vw, 64px);
-      line-height: 1;
-    }
-
-    .etsy-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 4px;
-      transition: color 0.2s, border-color 0.2s;
-      white-space: nowrap;
-      margin-bottom: 8px;
-    }
-
-    .etsy-link:hover { color: var(--accent); border-color: var(--accent); }
-
-    /* Filter */
-    .shop-filters {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: var(--font-body);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 8px 18px;
-      cursor: pointer;
-      border-radius: 1px;
-      transition: all 0.2s;
-    }
-
-    .filter-btn:hover, .filter-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #000;
-    }
-
-    /* Product grid */
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-    }
-
-    .product-card {
-      background: var(--surface);
-      display: flex;
-      flex-direction: column;
-      transition: background 0.2s;
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .product-card:hover { background: var(--surface2); }
-    .product-card:hover .product-img { transform: scale(1.04); }
-
-    .product-img-wrap {
-      overflow: hidden;
-      aspect-ratio: 1;
-      background: var(--surface2);
-      position: relative;
-    }
-
-    .product-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      display: block;
-    }
-
-    .product-img-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted, #888);
-      background: linear-gradient(135deg, #1e1e1e, #252525);
-    }
-
-    .product-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: var(--accent);
-      color: #000;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 1px;
-    }
-
-    .product-info {
-      padding: 20px 20px 24px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .product-category {
-      font-size: 10px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-
-    .product-name {
-      font-size: 16px;
-      font-weight: 500;
-      line-height: 1.3;
-      margin-bottom: 8px;
-      flex: 1;
-    }
-
-    .product-desc {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.5;
-      margin-bottom: 16px;
-    }
-
-    .product-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .product-price {
-      font-family: var(--font-display);
-      font-size: 26px;
-      color: var(--text);
-      letter-spacing: 1px;
-    }
-
-    .product-btn {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #000;
-      background: var(--accent);
-      border: none;
-      padding: 8px 14px;
-      border-radius: 1px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s;
-      display: inline-block;
-    }
-
-    .product-btn:hover { background: var(--accent2); }
-
-    .no-products {
-      background: var(--surface);
-      padding: 80px;
-      text-align: center;
-      color: var(--muted);
-      grid-column: 1 / -1;
-    }
-
-    /* ── CONTACT ── */
-    #contact {
-      padding: 120px 48px;
-      border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: start;
-    }
-
-    .contact-title {
-      font-family: var(--font-display);
-      font-size: clamp(40px, 5vw, 72px);
-      line-height: 1;
-      margin-bottom: 20px;
-    }
-
-    .contact-sub {
-      font-size: 15px;
-      line-height: 1.7;
-      color: var(--muted);
-      margin-bottom: 40px;
-    }
-
-    .contact-links {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .contact-link {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      text-decoration: none;
-      color: var(--text);
-      font-size: 15px;
-      padding: 16px 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .contact-link:hover {
-      border-color: var(--accent);
-      background: var(--surface2);
-    }
-
-    .contact-link-text span {
-      display: block;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 2px;
-    }
-
-    .contact-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .form-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-field label {
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .form-field input,
-    .form-field textarea {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--font-body);
-      font-size: 14px;
-      padding: 12px 16px;
-      border-radius: 2px;
-      outline: none;
-      transition: border-color 0.2s;
-      resize: vertical;
-    }
-
-    .form-field input:focus,
-    .form-field textarea:focus {
-      border-color: var(--accent);
-    }
-
-    .form-submit {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      font-family: var(--font-body);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      padding: 14px;
-      border-radius: 2px;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 4px;
-    }
-
-    .form-submit:hover { background: var(--accent2); }
-
-    /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 48px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-logo {
-      font-family: var(--font-display);
-      font-size: 20px;
-      letter-spacing: 4px;
-      color: var(--muted);
-    }
-
-    .footer-logo span { color: var(--accent); }
-
-    .footer-copy {
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: 1px;
-    }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── MOBILE ── */
-    @media (max-width: 768px) {
-      nav { padding: 16px 24px; }
-      nav ul { gap: 20px; }
-      nav ul li:not(:last-child) { display: none; }
-      #home, #about, #shop, #contact, footer { padding-left: 24px; padding-right: 24px; }
-      #about, #contact { grid-template-columns: 1fr; gap: 48px; }
-      .about-stats { grid-template-columns: 1fr; }
-      .section-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
   <!-- NAV -->
-  <nav>
-    <a href="#home" class="nav-logo">LAYER<span>BORN</span></a>
+  <nav class="site-nav">
+    <a href="index.html" class="nav-logo">LAYER<span>BORN</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
     <ul>
-      <li><a href="#about">About</a></li>
-      <li><a href="#shop">Shop</a></li>
-      <li><a href="#contact">Contact</a></li>
-      <li><a href="#contact" data-etsy-shop-link class="nav-cta">Etsy Store ↗</a></li>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="nav-cta">Contact</a></li>
     </ul>
   </nav>
 
   <!-- HERO -->
-  <section id="home">
-    <div class="hero-bg"></div>
-    <div class="hero-tag">Portland, Oregon · Multi-Color 3D Printing</div>
+  <section class="home-hero">
+    <div class="hero-tag">Portland, OR · Original Designs</div>
     <h1 class="hero-title">
-      MADE<br>
-      <span class="line2">LAYER</span><br>
-      <span class="accent">BY LAYER</span>
+      Functional<br/>
+      <span class="line2">3D Prints,</span><br/>
+      <span class="accent">Made&nbsp;Bright.</span>
     </h1>
     <p class="hero-sub">
-      Functional and decorative multi-color 3D prints, designed in-house from original models.
-      Custom orders welcome — if you can imagine it, we can design and print it.
+      Multi-color decorative and functional objects, designed in-house
+      from original models. Custom orders ship anywhere in the US.
     </p>
     <div class="hero-actions">
-      <a href="#shop" class="btn-primary">Browse Shop</a>
-      <a href="#contact" class="btn-secondary">Custom Order →</a>
-    </div>
-    <div class="hero-scroll">
-      <div class="scroll-line"></div>
-      Scroll
+      <a href="shop.html" class="btn-primary">Shop Products</a>
+      <a href="contact.html" class="btn-secondary">Custom Order →</a>
     </div>
   </section>
 
-  <!-- ABOUT -->
-  <section id="about">
-    <div>
-      <div class="about-label">About Layerborn</div>
-      <h2 class="about-title">PRECISION IN EVERY LAYER</h2>
-      <p class="about-text">
-        Layerborn is a small-batch 3D printing studio based in Portland, Oregon.
-        Every piece is printed with care on professional-grade equipment, delivering 
-        vibrant multi-color results you won't find anywhere else.
-      </p>
-      <p class="about-text">
-        We design our own original models — from custom coasters to decorative organizers —
-        then print them in-house. Functional art that actually holds up to daily use.
-      </p>
-      <div class="about-stats">
-        <div class="stat">
-          <div class="stat-num">Original Models</div>
-          <div class="stat-label">Made In-House</div>
-        </div>
-        <div class="stat">
-          <div class="stat-num">USA</div>
-          <div class="stat-label">Ships Nationwide</div>
-        </div>
-        <div class="stat">
-          <div class="stat-num">∞</div>
-          <div class="stat-label">Custom Designs</div>
-        </div>
-      </div>
-    </div>
-    <div class="about-features">
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2a10 10 0 0 0 0 20c1.5 0 2-1 2-2 0-1.5-1-1.5-1-3 0-1 1-2 2-2h2a5 5 0 0 0 5-5c0-5-4-8-10-8z"/></svg>
-        </div>
-        <div>
-          <div class="feature-title">Multi-Color Printing</div>
-          <div class="feature-desc">Up to 4 colors per print, crisp layer lines, no hand-painting required.</div>
-        </div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
-        </div>
-        <div>
-          <div class="feature-title">Functional Designs</div>
-          <div class="feature-desc">Built to last, not just look good. Every piece is designed with real-world use in mind.</div>
-        </div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-        </div>
-        <div>
-          <div class="feature-title">Custom Orders</div>
-          <div class="feature-desc">Got a specific idea? We'll design and print it from scratch. Reach out for a quote.</div>
-        </div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-        </div>
-        <div>
-          <div class="feature-title">Ships Nationwide</div>
-          <div class="feature-desc">Carefully packaged and shipped anywhere in the US.</div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- VALUE PROPS -->
+  <main class="page">
+    <div class="section-label">Why Layerborn</div>
+    <h2 class="section-title">Small batch. Fully custom.</h2>
+    <p class="page-sub">
+      Every print is made one at a time on Bambu Lab hardware,
+      slowly enough to come out right. No mass manufacturing,
+      no overseas warehouses.
+    </p>
 
-  <!-- SHOP -->
-  <section id="shop">
-    <div class="section-header">
+    <div class="value-props">
+      <div class="value-prop">
+        <div class="value-prop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3v18M3 12h18"/>
+          </svg>
+        </div>
+        <div class="value-prop-title">Up to 4-color prints</div>
+        <div class="value-prop-text">
+          Bambu's AMS lets us cleanly blend up to four colors in a single
+          object — bright, sharp, no painting required.
+        </div>
+      </div>
+      <div class="value-prop">
+        <div class="value-prop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>
+          </svg>
+        </div>
+        <div class="value-prop-title">Designed in-house</div>
+        <div class="value-prop-text">
+          Original models — not generic things you can find anywhere.
+          Each is sketched, modeled, and tested by us.
+        </div>
+      </div>
+      <div class="value-prop">
+        <div class="value-prop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M3 7l9-4 9 4-9 4-9-4z"/>
+            <path d="M3 12l9 4 9-4M3 17l9 4 9-4"/>
+          </svg>
+        </div>
+        <div class="value-prop-title">PETG durability</div>
+        <div class="value-prop-text">
+          Tough, weather-resistant filament where it matters
+          (coasters, holders). PLA for indoor decor.
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURED PRODUCTS -->
+    <div class="featured-header">
       <div>
-        <div class="section-label">Products</div>
-        <h2 class="section-title">THE SHOP</h2>
+        <div class="section-label">Featured</div>
+        <h2 class="section-title">Recent work</h2>
       </div>
-      <a href="#contact" data-etsy-shop-link class="etsy-link">View on Etsy ↗</a>
+      <a href="shop.html" class="btn-secondary">View all →</a>
     </div>
-
-    <div class="shop-filters" id="filters"></div>
-    <div class="product-grid" id="product-grid"></div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact">
-    <div>
-      <div class="about-label">Get In Touch</div>
-      <h2 class="contact-title">LET'S BUILD SOMETHING</h2>
-      <p class="contact-sub">
-        Custom order? Question about a product? Just want to chat 3D printing?
-        We're always happy to hear from you — and we'll get back to you within 1–2 business days.
-      </p>
-      <div class="contact-links">
-        <a href="mailto:layerborn0@gmail.com" class="contact-link">
-          <span class="contact-link-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          </span>
-          <div class="contact-link-text">
-            <span>Email</span>
-            layerborn0@gmail.com
-          </div>
-        </a>
-        <a href="#contact" data-etsy-shop-link class="contact-link">
-          <span class="contact-link-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          </span>
-          <div class="contact-link-text">
-            <span>Etsy Shop</span>
-            Message us on Etsy
-          </div>
-        </a>
-        <div class="contact-link" style="cursor: default;">
-          <span class="contact-link-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </span>
-          <div class="contact-link-text">
-            <span>Location</span>
-            Portland, Oregon
-          </div>
-        </div>
-      </div>
+    <div class="product-grid" id="featured-grid">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
     </div>
-    <div>
-      <form id="contact-form" class="contact-form" action="https://formspree.io/f/xlgaazyp" method="POST">
-        <div class="form-field">
-          <label for="fs-name">Your Name</label>
-          <input type="text" id="fs-name" name="name" placeholder="John Doe" required />
-        </div>
-        <div class="form-field">
-          <label for="fs-email">Email</label>
-          <input type="email" id="fs-email" name="email" placeholder="you@email.com" required />
-        </div>
-        <div class="form-field">
-          <label for="fs-message">What are you looking for?</label>
-          <textarea id="fs-message" name="message" rows="5" placeholder="Tell us about your custom order idea, or ask us anything..." required></textarea>
-        </div>
-        <input type="text" name="_honeypot" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true" />
-        <button type="submit" class="form-submit" id="form-btn">Send Message →</button>
-        <p id="form-msg" style="font-size:13px;display:none;margin-top:8px;"></p>
-      </form>
-    </div>
-  </section>
+  </main>
 
   <!-- FOOTER -->
-  <footer>
-    <div class="footer-logo">LAYER<span>BORN</span></div>
+  <footer class="site-footer">
+    <a href="index.html" class="footer-logo">LAYER<span>BORN</span></a>
+    <ul class="footer-links">
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
     <div class="footer-copy">© 2026 Layerborn · Portland, OR</div>
   </footer>
 
+  <script src="app.js"></script>
   <script>
-    /* ============================================================
-       ETSY_SHOP_URL — paste your shop URL here once Etsy is live.
-       Until then it stays as "#contact" so visitors who click any
-       "Etsy Store" / "View on Etsy" button land on the contact form
-       instead of Etsy's homepage.
-
-       Example once you create the shop:
-         const ETSY_SHOP_URL = "https://www.etsy.com/shop/Layerborn";
-    ============================================================ */
-    const ETSY_SHOP_URL = "#contact";
-    const HAS_ETSY_SHOP = ETSY_SHOP_URL && !ETSY_SHOP_URL.startsWith("#");
-
-    /* Wire up every site-wide "Etsy Store" / "View on Etsy" link to
-       use the constant above. Hide them gracefully if the shop URL
-       isn't set yet, so visitors aren't sent to a dead link. */
-    document.querySelectorAll('[data-etsy-shop-link]').forEach(a => {
-      a.href = ETSY_SHOP_URL;
-      if (HAS_ETSY_SHOP) {
-        a.target = "_blank";
-        a.rel    = "noreferrer";
-      } else {
-        // No shop yet → repurpose the button as a contact CTA so the
-        // copy isn't misleading.
-        if (a.classList.contains('nav-cta'))   a.textContent = 'Custom Orders →';
-        if (a.classList.contains('etsy-link')) a.textContent = 'Custom Orders →';
-        // For the contact-section card, swap "Etsy Shop / Message us on Etsy"
-        // for "Custom Orders / Message us about your idea".
-        if (a.classList.contains('contact-link')) {
-          const t = a.querySelector('.contact-link-text');
-          if (t) {
-            const label  = t.querySelector('span');
-            if (label)   label.textContent = 'Custom Orders';
-            // Replace the trailing text node ("Message us on Etsy")
-            const last = t.lastChild;
-            if (last && last.nodeType === 3) last.textContent = 'Message us about your idea';
-          }
-        }
-      }
-    });
-
-    /* ============================================================
-       FALLBACK product list — only shown if the management app's
-       /api/public/products endpoint is unreachable. Kept minimal
-       (just a "Custom Order" CTA) so visitors never see broken
-       Etsy links pointing nowhere.
-    ============================================================ */
-    const CUSTOM_ORDER_ENTRY = {
-      name: "Custom Order",
-      category: "Custom",
-      desc: "Have something specific in mind? We'll design and print it. Message us to get a quote.",
-      price: "Quote",
-      etsy: "#contact",
-      image: "",
-      badge: "Ask Us",
-    };
-    const PRODUCTS  = [CUSTOM_ORDER_ENTRY];
-    const FALLBACK  = PRODUCTS.slice();
-    let LIVE_PRODUCTS = FALLBACK;
-
-    function fmtPrice(cents) {
-      if (cents == null) return "Quote";
-      return "$" + (cents / 100).toFixed(2);
-    }
-
-    /* Convert API row to the shape this script expects. */
-    function apiToProduct(p) {
-      return {
-        name:     p.name,
-        category: p.category || "Other",
-        desc:     p.description || "",
-        price:    fmtPrice(p.price_cents),
-        etsy:     p.etsy_url || "#contact",
-        image:    p.image ? (MGMT_API_BASE + p.image) : "",
-        badge:    p.badge || "",
-      };
-    }
-
-    /* Storefront calls the management app at this base URL. Update it if
-       the cloudflared tunnel URL ever changes. */
-    const MGMT_API_BASE = "https://controlled-results-referral-finances.trycloudflare.com";
-
-    const filterContainer = document.getElementById("filters");
-    let activeFilter = "All";
-
-    function rebuildFilters() {
-      const cats = ["All", ...new Set(LIVE_PRODUCTS.map(p => p.category))];
-      filterContainer.innerHTML = "";
-      cats.forEach(cat => {
-        const btn = document.createElement("button");
-        btn.className = "filter-btn" + (cat === activeFilter ? " active" : "");
-        btn.textContent = cat;
-        btn.addEventListener("click", () => {
-          activeFilter = cat;
-          document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          renderProducts();
-        });
-        filterContainer.appendChild(btn);
-      });
-    }
-
-    /* ── Render products ── */
-    function renderProducts() {
-      const grid = document.getElementById("product-grid");
-      const filtered = activeFilter === "All"
-        ? LIVE_PRODUCTS
-        : LIVE_PRODUCTS.filter(p => p.category === activeFilter);
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '<div class="no-products">No products in this category yet.</div>';
+    /* Home: load + show up to 4 featured products */
+    (async () => {
+      const products = await LB.fetchProducts();
+      const grid = document.getElementById("featured-grid");
+      const items = products.slice(0, 4);
+      if (items.length === 0) {
+        grid.innerHTML = '<div class="no-products">More products coming soon — <a href="contact.html" style="color:var(--accent)">message us</a> for a custom order.</div>';
         return;
       }
-
-      grid.innerHTML = filtered.map(p => {
-        // Only open external (real) URLs in a new tab; keep on-page anchors
-        // (#contact for Custom Order / unlisted items) in the same tab so
-        // smooth scroll works.
-        const isExternal = p.etsy && /^https?:\/\//i.test(p.etsy);
-        const target = isExternal ? ' target="_blank" rel="noreferrer"' : '';
-        return `
-        <a href="${p.etsy}"${target} class="product-card">
-          <div class="product-img-wrap">
-            ${p.image
-              ? `<img class="product-img" src="${p.image}" alt="${p.name}" loading="lazy"/>`
-              : `<div class="product-img-placeholder">${p.category}</div>`
-            }
-            ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ""}
-          </div>
-          <div class="product-info">
-            <div class="product-category">${p.category}</div>
-            <div class="product-name">${p.name}</div>
-            <div class="product-desc">${p.desc}</div>
-            <div class="product-footer">
-              <div class="product-price">${p.price}</div>
-              <span class="product-btn">${p.price === "Quote" ? "Inquire" : "Buy Now"}</span>
-            </div>
-          </div>
-        </a>
-      `;}).join("");
-    }
-
-    rebuildFilters();
-    renderProducts();
-
-    /* Replace the fallback list with whatever the management app says is
-       published. If the fetch fails (app offline, tunnel changed, etc.)
-       the fallback list stays visible so the page never goes empty. */
-    fetch(MGMT_API_BASE + "/api/public/products")
-      .then(r => r.ok ? r.json() : Promise.reject(r.status))
-      .then(rows => {
-        if (!Array.isArray(rows)) return;
-        LIVE_PRODUCTS = rows.map(apiToProduct).concat([CUSTOM_ORDER_ENTRY]);
-        rebuildFilters();
-        renderProducts();
-      })
-      .catch(err => {
-        console.warn("Could not load live product list, using fallback:", err);
-      });
-
-    /* ── Contact form (AJAX → Formspree) ── */
-    /* Contact form: posts to Formspree (email) and management app (Discord). */
-    document.getElementById("contact-form").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const form = e.target;
-      const btn = document.getElementById("form-btn");
-      const msg = document.getElementById("form-msg");
-
-      btn.disabled = true;
-      btn.textContent = "Sending…";
-      msg.style.display = "none";
-
-      const fd = new FormData(form);
-
-      // Fire-and-forget: forward a copy to the management app for Discord.
-      // Failure here doesn't affect the user — Formspree (email) is the
-      // source of truth for "did the message land".
-      fetch(MGMT_API_BASE + "/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name:       fd.get("name"),
-          email:      fd.get("email"),
-          message:    fd.get("message"),
-          _honeypot:  fd.get("_honeypot") || "",
-        }),
-      }).catch(() => { /* silent */ });
-
-      try {
-        const res = await fetch(form.action, {
-          method: "POST",
-          headers: { "Accept": "application/json" },
-          body: fd
-        });
-        const data = await res.json().catch(() => ({}));
-        console.log("Formspree response:", res.status, data);
-
-        if (res.ok) {
-          msg.style.color = "var(--accent)";
-          msg.textContent = "Message sent! Check your inbox for a confirmation.";
-          form.reset();
-        } else if (data.errors && data.errors.length) {
-          msg.style.color = "#ff4444";
-          msg.textContent = data.errors.map(err => err.message).join(", ");
-        } else {
-          msg.style.color = "#ff4444";
-          msg.textContent = "Something went wrong (status " + res.status + "). Email us directly at layerborn0@gmail.com.";
-        }
-      } catch (err) {
-        console.error("Form submit error:", err);
-        msg.style.color = "#ff4444";
-        msg.textContent = "Network error. Please try again or email us directly.";
-      }
-
-      msg.style.display = "block";
-      btn.disabled = false;
-      btn.textContent = "Send Message →";
-    });
+      grid.innerHTML = items.map(LB.renderProductCard).join("");
+    })();
   </script>
 </body>
 </html>

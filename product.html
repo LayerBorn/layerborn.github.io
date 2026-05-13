@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Layerborn</title>
+  <meta name="theme-color" content="#0d0d0d" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="index.html" class="nav-logo">LAYER<span>BORN</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="nav-cta">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div id="product-content">
+      <div class="product-detail">
+        <div class="skeleton" style="aspect-ratio:1; border:1px solid var(--border);"></div>
+        <div>
+          <div style="background:var(--surface); height:24px; width:120px; margin-bottom:24px; border:1px solid var(--border);"></div>
+          <div style="background:var(--surface); height:48px; width:80%; margin-bottom:24px; border:1px solid var(--border);"></div>
+          <div style="background:var(--surface); height:64px; width:160px; margin-bottom:24px; border:1px solid var(--border);"></div>
+          <div style="background:var(--surface); height:120px; border:1px solid var(--border);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related products -->
+    <div id="related-wrap" style="display:none; margin-top:80px;">
+      <div class="section-label">Related</div>
+      <h2 class="section-title" style="margin-bottom:32px;">More like this</h2>
+      <div class="product-grid" id="related-grid"></div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <a href="index.html" class="footer-logo">LAYER<span>BORN</span></a>
+    <ul class="footer-links">
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 Layerborn · Portland, OR</div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    (async () => {
+      const content = document.getElementById("product-content");
+      const params  = new URLSearchParams(location.search);
+      const id      = parseInt(params.get("id"));
+
+      if (!id) {
+        content.innerHTML = `
+          <div class="no-products" style="padding:120px 40px;">
+            No product specified. <a href="shop.html" style="color:var(--accent)">Back to the shop</a>.
+          </div>`;
+        return;
+      }
+
+      const products = await LB.fetchProducts();
+      const p = products.find(x => x.id === id);
+
+      if (!p) {
+        content.innerHTML = `
+          <div class="no-products" style="padding:120px 40px;">
+            Sorry, that product is no longer available.
+            <a href="shop.html" style="color:var(--accent)">Browse current products →</a>
+          </div>`;
+        return;
+      }
+
+      // Page title + meta
+      document.title = `${p.name} — Layerborn`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc && p.description) metaDesc.setAttribute('content', p.description);
+
+      const img = LB.imageUrlFor(p);
+      const esc = LB.escapeHtml;
+      const buyHref = p.etsy_url || 'contact.html';
+      const buyLabel = p.etsy_url ? 'Buy on Etsy →' : 'Inquire to order →';
+      const buyExternal = p.etsy_url && /^https?:\/\//.test(p.etsy_url);
+
+      content.innerHTML = `
+        <div class="product-detail fade-in">
+          <div class="product-detail-img">
+            ${img
+              ? `<img src="${esc(img)}" alt="${esc(p.name)}" />`
+              : `<div class="product-img-placeholder" style="width:100%;height:100%;font-size:14px;">${esc(p.category || 'Layerborn')}</div>`
+            }
+          </div>
+          <div class="product-detail-info">
+            <div class="crumbs">
+              <a href="shop.html">Shop</a>
+              ${p.category ? ` / <a href="shop.html?category=${esc(p.category)}">${esc(p.category)}</a>` : ''}
+              / <span>${esc(p.name)}</span>
+            </div>
+            ${p.category ? `<div class="product-detail-cat">${esc(p.category)}</div>` : ''}
+            <h1>${esc(p.name)}</h1>
+            <div class="product-detail-price">${esc(LB.fmtPrice(p.price_cents))}</div>
+            ${p.description ? `<p class="product-detail-desc">${esc(p.description)}</p>` : ''}
+            <div class="product-detail-actions">
+              <a href="${esc(buyHref)}" class="btn-primary"
+                 ${buyExternal ? 'target="_blank" rel="noopener"' : ''}>${esc(buyLabel)}</a>
+              <a href="contact.html" class="btn-outline">Ask a Question</a>
+            </div>
+            <div style="font-size:12px; color:var(--muted); line-height:1.7; border-top:1px solid var(--border); padding-top:20px;">
+              <div><strong style="color:var(--text);">Made to order</strong> — printed individually after purchase.</div>
+              <div>Typically ships within 3–7 days from Portland, OR.</div>
+              <div>Want it in a different color or size? <a href="contact.html" style="color:var(--accent);">Just ask.</a></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Related products: same category, excluding this one, up to 4
+      const related = products
+        .filter(x => x.id !== p.id && (x.category || 'Other') === (p.category || 'Other'))
+        .slice(0, 4);
+      if (related.length > 0) {
+        document.getElementById('related-wrap').style.display = 'block';
+        document.getElementById('related-grid').innerHTML =
+          related.map(LB.renderProductCard).join('');
+      }
+    })();
+  </script>
+</body>
+</html>

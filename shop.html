@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop — Layerborn</title>
+  <meta name="description" content="Browse our 3D-printed coasters, decor, holders, and accessories." />
+  <meta name="theme-color" content="#0d0d0d" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <a href="index.html" class="nav-logo">LAYER<span>BORN</span></a>
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="nav-cta">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div class="section-label">Shop</div>
+    <h1 class="page-hero">All <span class="accent">products</span>.</h1>
+    <p class="page-sub">
+      Made to order in Portland. Shipping nationwide, usually within
+      3–7 days of order placement.
+    </p>
+
+    <div class="shop-filters" id="filters"></div>
+    <div class="product-grid" id="product-grid">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <a href="index.html" class="footer-logo">LAYER<span>BORN</span></a>
+    <ul class="footer-links">
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 Layerborn · Portland, OR</div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    /* Shop: load full catalog, build category filters dynamically.
+       The "All" filter shows everything; per-category filters are
+       built from the published-products feed itself.
+
+       Reads ?category=Foo from URL so we can deep-link from Home etc.
+    */
+    (async () => {
+      const products = await LB.fetchProducts();
+      const grid = document.getElementById("product-grid");
+      const filterContainer = document.getElementById("filters");
+
+      const params = new URLSearchParams(location.search);
+      let active = params.get("category") || "All";
+
+      const cats = ["All", ...new Set(products.map(p => p.category || "Other"))];
+
+      function rebuildFilters() {
+        filterContainer.innerHTML = "";
+        cats.forEach(cat => {
+          const btn = document.createElement("button");
+          btn.className = "filter-btn" + (cat === active ? " active" : "");
+          btn.textContent = cat;
+          btn.addEventListener("click", () => {
+            active = cat;
+            const u = new URL(location.href);
+            if (cat === "All") u.searchParams.delete("category");
+            else u.searchParams.set("category", cat);
+            history.replaceState({}, "", u);
+            rebuildFilters();
+            render();
+          });
+          filterContainer.appendChild(btn);
+        });
+      }
+
+      function render() {
+        const filtered = active === "All"
+          ? products
+          : products.filter(p => (p.category || "Other") === active);
+        if (filtered.length === 0) {
+          grid.innerHTML = '<div class="no-products">Nothing in this category yet. <a href="contact.html" style="color:var(--accent)">Message us</a> if you want something custom.</div>';
+          return;
+        }
+        grid.innerHTML = filtered.map(LB.renderProductCard).join("");
+      }
+
+      rebuildFilters();
+      render();
+    })();
+  </script>
+</body>
+</html>
