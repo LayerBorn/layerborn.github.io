@@ -7,7 +7,7 @@
    If the tunnel URL ever changes, update MGMT_API_BASE here.
 */
 
-const MGMT_API_BASE = "https://controlled-results-referral-finances.trycloudflare.com";
+const MGMT_API_BASE = "https://lounge-bids-actors-workstation.trycloudflare.com";
 
 /* Hardcoded fallback shown only if the management app is offline /
    the URL is wrong. Kept generic so the page never goes blank. */
