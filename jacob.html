@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>A Day in the Life of Jacob</title>
+<style>
+  :root{
+    --bg:#0f1320; --panel:#171c2e; --panel2:#1e2540; --ink:#e9ecf5;
+    --muted:#9aa3c0; --accent:#5ad1a0; --accent2:#6aa6ff; --warn:#ff7b6b;
+    --gold:#ffce5a; --line:#2a3350;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:radial-gradient(1200px 600px at 70% -10%, #1b2240 0, transparent 60%), var(--bg);
+    color:var(--ink);
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    display:flex;flex-direction:column;align-items:center;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  header{
+    width:100%;max-width:980px;padding:18px 16px 6px;text-align:center;
+  }
+  header h1{margin:0;font-size:clamp(22px,4vw,34px);letter-spacing:.5px}
+  header h1 .accent{color:var(--accent)}
+  header p{margin:6px 0 0;color:var(--muted);font-size:14px}
+
+  .wrap{
+    width:100%;max-width:980px;padding:12px 14px 40px;
+    display:grid;grid-template-columns:1fr 320px;gap:16px;
+  }
+  @media (max-width:840px){ .wrap{grid-template-columns:1fr} }
+
+  .stage{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    overflow:hidden;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+  canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background:#0c1020;touch-action:none}
+
+  .hud{
+    position:absolute;top:10px;left:10px;right:10px;display:flex;gap:8px;
+    flex-wrap:wrap;pointer-events:none;
+  }
+  .chip{
+    background:rgba(10,14,28,.72);border:1px solid var(--line);border-radius:999px;
+    padding:5px 10px;font-size:12px;display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px);
+  }
+  .chip b{color:var(--ink)}
+  .chip .ic{font-size:13px}
+  .clock{margin-left:auto}
+
+  .bars{
+    position:absolute;left:10px;bottom:10px;right:10px;display:grid;
+    grid-template-columns:repeat(4,1fr);gap:8px;pointer-events:none;
+  }
+  .bar{background:rgba(10,14,28,.72);border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+  .bar .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+  .bar .track{height:7px;background:#0a0e1c;border-radius:6px;overflow:hidden}
+  .bar .fill{height:100%;width:50%;border-radius:6px;transition:width .35s ease}
+
+  .side{display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .card h2{margin:0 0 10px;font-size:14px;letter-spacing:.4px;color:var(--muted);text-transform:uppercase}
+
+  #log{height:200px;overflow:auto;font-size:13.5px;line-height:1.5;display:flex;flex-direction:column;gap:7px}
+  #log .entry{padding:8px 10px;background:var(--panel2);border-radius:9px;border-left:3px solid var(--line)}
+  #log .entry.good{border-left-color:var(--accent)}
+  #log .entry.bad{border-left-color:var(--warn)}
+  #log .entry.info{border-left-color:var(--accent2)}
+  #log .entry.gold{border-left-color:var(--gold)}
+  #log .entry small{color:var(--muted)}
+
+  .hint{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .keys{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .key{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:3px 9px;font-size:12px;font-family:ui-monospace,monospace}
+
+  /* Decision modal */
+  .modal{
+    position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(6,9,18,.7);backdrop-filter:blur(3px);padding:18px;z-index:20;
+  }
+  .modal.show{display:flex}
+  .dialog{
+    background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
+    border-radius:16px;max-width:440px;width:100%;padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.5);
+    animation:pop .18s ease;
+  }
+  @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  .dialog .place{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:1px}
+  .dialog h3{margin:6px 0 8px;font-size:19px}
+  .dialog p{margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.55}
+  .choices{display:flex;flex-direction:column;gap:9px}
+  .choice{
+    text-align:left;background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    padding:11px 13px;border-radius:11px;cursor:pointer;font-size:14px;transition:.14s;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+  }
+  .choice:hover{border-color:var(--accent2);transform:translateY(-1px);background:var(--panel2)}
+  .choice .cost{font-size:12px;color:var(--muted);white-space:nowrap}
+  .choice .cost .up{color:var(--accent)}
+  .choice .cost .dn{color:var(--warn)}
+
+  .touchpad{display:none;margin-top:12px;grid-template-columns:repeat(3,1fr);gap:8px;max-width:220px}
+  @media (max-width:840px){ .touchpad{display:grid} }
+  .touchpad button{
+    background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;
+    padding:14px 0;font-size:18px;cursor:pointer;user-select:none;
+  }
+  .touchpad button:active{background:var(--accent2);color:#06121f}
+  .touchpad .sp{visibility:hidden}
+
+  .toast{
+    position:absolute;top:54px;left:50%;transform:translateX(-50%);
+    background:rgba(10,14,28,.92);border:1px solid var(--line);border-radius:10px;
+    padding:8px 14px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:15;
+  }
+  .toast.show{opacity:1}
+  footer{color:var(--muted);font-size:12px;padding:0 0 30px;text-align:center}
+  footer a{color:var(--accent2);text-decoration:none}
+  .btn{
+    background:var(--accent);color:#06121f;border:none;border-radius:10px;padding:9px 14px;
+    font-weight:600;cursor:pointer;font-size:13px;
+  }
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .row{display:flex;gap:8px;align-items:center}
+</style>
+</head>
+<body>
+  <header>
+    <h1>A Day in the Life of <span class="accent">Jacob</span></h1>
+    <p>Walk him around town. Step up to a place to make a decision. Get through the day.</p>
+  </header>
+
+  <div class="wrap">
+    <div class="stage">
+      <canvas id="game" width="640" height="420"></canvas>
+      <div class="hud">
+        <div class="chip"><span class="ic">📅</span> Day <b id="dayNum">1</b></div>
+        <div class="chip"><span class="ic">💵</span> $<b id="money">40</b></div>
+        <div class="chip clock"><span class="ic">🕗</span> <b id="clock">7:00 AM</b></div>
+      </div>
+      <div class="bars">
+        <div class="bar"><div class="lab"><span>⚡ Energy</span><span id="energyV">70%</span></div><div class="track"><div class="fill" id="energyB" style="background:var(--gold)"></div></div></div>
+        <div class="bar"><div class="lab"><span>🍔 Hunger</span><span id="hungerV">40%</span></div><div class="track"><div class="fill" id="hungerB" style="background:var(--accent)"></div></div></div>
+        <div class="bar"><div class="lab"><span>😊 Mood</span><span id="moodV">60%</span></div><div class="track"><div class="fill" id="moodB" style="background:var(--accent2)"></div></div></div>
+        <div class="bar"><div class="lab"><span>💼 Career</span><span id="careerV">10%</span></div><div class="track"><div class="fill" id="careerB" style="background:#c58cff"></div></div></div>
+      </div>
+      <div class="toast" id="toast"></div>
+
+      <div class="modal" id="modal">
+        <div class="dialog">
+          <div class="place" id="dlgPlace">Home</div>
+          <h3 id="dlgTitle">What now?</h3>
+          <p id="dlgText"></p>
+          <div class="choices" id="dlgChoices"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h2>Jacob's Journal</h2>
+        <div id="log"></div>
+      </div>
+      <div class="card">
+        <h2>How to play</h2>
+        <div class="hint">
+          Move Jacob with the keys below. Walk onto a glowing spot to open a decision.
+          Each choice spends time and changes how Jacob feels. The day ends at midnight —
+          keep his Energy and Hunger from bottoming out.
+          <div class="keys">
+            <span class="key">W A S D</span><span class="key">↑ ← ↓ →</span><span class="key">E / Space — interact</span>
+          </div>
+          <div class="touchpad">
+            <span class="sp"></span><button data-dir="up">▲</button><span class="sp"></span>
+            <button data-dir="left">◀</button><button data-dir="act">●</button><button data-dir="right">▶</button>
+            <span class="sp"></span><button data-dir="down">▼</button><span class="sp"></span>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn ghost" id="resetBtn">Restart day</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Built as a tiny life-sim. <a href="index.html">← back to main site</a>
+  </footer>
+
+<script>
+(() => {
+  "use strict";
+  const cv = document.getElementById('game');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+
+  // ---------- World layout ----------
+  // Tile-ish world; buildings are interaction zones.
+  const places = [
+    { id:'home',   name:"Jacob's Apartment", x: 70,  y: 60,  w:120, h:90,  color:'#3a4d8c', emoji:'🏠', label:'Home' },
+    { id:'cafe',   name:"The Daily Grind",   x: 270, y: 50,  w:110, h:80,  color:'#8c5a3a', emoji:'☕', label:'Café' },
+    { id:'work',   name:"Office Tower",      x: 460, y: 55,  w:120, h:110, color:'#4a5570', emoji:'🏢', label:'Work' },
+    { id:'gym',    name:"Iron Yard Gym",     x: 70,  y: 280, w:120, h:90,  color:'#7a3a4d', emoji:'🏋️', label:'Gym' },
+    { id:'park',   name:"Greenfield Park",   x: 250, y: 270, w:140, h:110, color:'#2f6b4a', emoji:'🌳', label:'Park' },
+    { id:'shop',   name:"Corner Market",     x: 470, y: 285, w:110, h:85,  color:'#6b5a2f', emoji:'🛒', label:'Market' },
+  ];
+
+  // ---------- Player ----------
+  const jacob = { x: W/2, y: H/2, size: 14, speed: 2.2, dir:'down', step:0, moving:false };
+
+  // ---------- Stats ----------
+  const DEFAULTS = { day:1, minutes: 7*60, money:40, energy:70, hunger:40, mood:60, career:10 };
+  let s = { ...DEFAULTS };
+  let dayOver = false;
+
+  const clamp = (v) => Math.max(0, Math.min(100, v));
+  const $ = (id) => document.getElementById(id);
+
+  function fmtClock(min){
+    let h = Math.floor(min/60) % 24, m = min % 60;
+    const ap = h < 12 ? 'AM' : 'PM';
+    let hh = h % 12; if (hh === 0) hh = 12;
+    return `${hh}:${String(m).padStart(2,'0')} ${ap}`;
+  }
+
+  function render(){
+    $('dayNum').textContent = s.day;
+    $('money').textContent = s.money;
+    $('clock').textContent = fmtClock(s.minutes);
+    const set = (b,v,t) => { $(b).style.width = clamp(v)+'%'; $(t).textContent = Math.round(clamp(v))+'%'; };
+    set('energyB', s.energy, 'energyV');
+    set('hungerB', s.hunger, 'hungerV');
+    set('moodB', s.mood, 'moodV');
+    set('careerB', s.career, 'careerV');
+  }
+
+  // ---------- Journal ----------
+  function log(text, kind='info'){
+    const el = document.createElement('div');
+    el.className = 'entry ' + kind;
+    el.innerHTML = `<small>${fmtClock(s.minutes)}</small> &nbsp;${text}`;
+    const box = $('log');
+    box.appendChild(el);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  let toastT;
+  function toast(msg){
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('show'), 1600);
+  }
+
+  // ---------- Time / consequences ----------
+  function advance(min){
+    s.minutes += min;
+    // passive drain proportional to time spent
+    s.energy = clamp(s.energy - min*0.018);
+    s.hunger = clamp(s.hunger + min*0.03);
+    if (s.hunger > 80) s.mood = clamp(s.mood - min*0.02);
+    if (s.energy < 15) s.mood = clamp(s.mood - min*0.02);
+    if (s.minutes >= 24*60) endDay();
+    render();
+  }
+
+  function applyEffects(e){
+    if (e.money)  s.money  = Math.max(0, s.money + e.money);
+    if (e.energy) s.energy = clamp(s.energy + e.energy);
+    if (e.hunger) s.hunger = clamp(s.hunger + e.hunger);
+    if (e.mood)   s.mood   = clamp(s.mood + e.mood);
+    if (e.career) s.career = clamp(s.career + e.career);
+    if (e.time)   advance(e.time); else render();
+  }
+
+  // ---------- Decisions ----------
+  const SCENES = {
+    home: () => ({
+      title: "Home sweet home",
+      text: s.minutes > 21*60
+        ? "It's late. The bed is calling and tomorrow won't wait."
+        : "Your apartment is quiet. What do you want to do?",
+      choices: [
+        { label:"Sleep until morning", cost:"⚡ recover", eff:{}, fn: sleepToMorning },
+        { label:"Power nap (1h)", cost:"⚡ +18 · 🕗 1h", eff:{energy:18, time:60}, msg:"A short nap takes the edge off." },
+        { label:"Cook a real meal", cost:"💵 -6 · 🍔 -40", eff:{money:-6, hunger:-40, mood:+6, time:40}, msg:"Homemade and hot. Worth it.", need:{money:6} },
+        { label:"Tidy up & relax", cost:"😊 +10 · 🕗 45m", eff:{mood:+10, energy:-4, time:45}, msg:"A clean space, a clear head." },
+      ]
+    }),
+    cafe: () => ({
+      title: "The Daily Grind",
+      text: "Warm espresso smell, soft chatter. The barista nods at you.",
+      choices: [
+        { label:"Black coffee to go", cost:"💵 -3 · ⚡ +14", eff:{money:-3, energy:14, mood:+3, time:15}, msg:"That hits different.", need:{money:3} },
+        { label:"Coffee + pastry", cost:"💵 -8 · 🍔 -25", eff:{money:-8, hunger:-25, energy:10, mood:+6, time:25}, msg:"Flaky, buttery, perfect.", need:{money:8} },
+        { label:"Catch up with a friend", cost:"😊 +16 · 🕗 50m", eff:{mood:+16, energy:-3, time:50}, msg:"Good company beats caffeine." },
+        { label:"Just use the wifi", cost:"💼 +4", eff:{career:+4, energy:-4, time:40}, msg:"You knock out a few emails." },
+      ]
+    }),
+    work: () => ({
+      title: "Office Tower",
+      text: s.energy < 20
+        ? "You can barely keep your eyes open, but the deadline looms."
+        : "Your desk, your inbox, your shot at that promotion.",
+      choices: [
+        { label:"Grind a focused shift", cost:"💵 +45 · 💼 +12", eff:{money:+45, career:+12, energy:-22, hunger:+12, mood:-4, time:240}, msg:"Productive. Draining. Paid." },
+        { label:"Pitch a bold idea", cost:"💼 risky", eff:{}, fn: workGamble },
+        { label:"Coast and clock out early", cost:"💵 +18 · 😊 +6", eff:{money:+18, career:-2, mood:+6, energy:-8, time:120}, msg:"Some days you just survive." },
+        { label:"Chat by the water cooler", cost:"😊 +8 · 💼 +2", eff:{mood:+8, career:+2, energy:-3, time:30}, msg:"Office gossip is a love language." },
+      ]
+    }),
+    gym: () => ({
+      title: "Iron Yard Gym",
+      text: "Clanging weights and the smell of determination.",
+      choices: [
+        { label:"Full workout", cost:"😊 +14 · ⚡ -18", eff:{mood:+14, energy:-18, hunger:+18, career:+2, time:75}, msg:"Endorphins unlocked." },
+        { label:"Light cardio", cost:"😊 +8 · ⚡ -8", eff:{mood:+8, energy:-8, hunger:+8, time:40}, msg:"A gentle reset." },
+        { label:"Sauna & stretch", cost:"⚡ +10 · 😊 +6", eff:{energy:+10, mood:+6, time:35}, msg:"Loose muscles, easy mind." },
+      ]
+    }),
+    park: () => ({
+      title: "Greenfield Park",
+      text: "Sunlight through the trees, a dog chasing a frisbee.",
+      choices: [
+        { label:"Long walk", cost:"😊 +12 · ⚡ -5", eff:{mood:+12, energy:-5, time:50}, msg:"The world slows down a little." },
+        { label:"Sit and people-watch", cost:"😊 +8 · ⚡ +6", eff:{mood:+8, energy:+6, time:35}, msg:"Doing nothing, beautifully." },
+        { label:"Random encounter", cost:"❓", eff:{}, fn: parkEvent },
+      ]
+    }),
+    shop: () => ({
+      title: "Corner Market",
+      text: "Fluorescent lights and a fridge that hums. Stock up?",
+      choices: [
+        { label:"Grab a quick meal", cost:"💵 -7 · 🍔 -35", eff:{money:-7, hunger:-35, mood:+3, time:20}, msg:"Cheap, fast, filling.", need:{money:7} },
+        { label:"Energy drink", cost:"💵 -4 · ⚡ +20", eff:{money:-4, energy:+20, mood:-2, hunger:+5, time:10}, msg:"Wings, allegedly.", need:{money:4} },
+        { label:"Buy a lottery ticket", cost:"💵 -2 · ❓", eff:{}, fn: lottery, need:{money:2} },
+        { label:"Healthy groceries", cost:"💵 -12 · 🍔 -20", eff:{money:-12, hunger:-20, mood:+8, energy:+4, time:30}, msg:"Future-you says thanks.", need:{money:12} },
+      ]
+    }),
+  };
+
+  // Special outcome handlers
+  function sleepToMorning(){
+    closeModal();
+    const restful = s.energy < 50;
+    s.energy = clamp(85 + (restful?10:0));
+    s.mood = clamp(s.mood + 6);
+    // jump to 7am next day
+    s.minutes = 24*60; // triggers endDay -> new day at 7
+    log("Jacob sleeps. The city goes dark and quiet. 🌙", 'info');
+    advance(0);
+  }
+
+  function workGamble(){
+    closeModal();
+    advance(90);
+    if (Math.random() < 0.5){
+      applyEffects({career:+22, money:+30, mood:+12});
+      log("The pitch lands! The room nods. Big win for Jacob's career. 🚀", 'gold');
+      toast("Pitch succeeded!");
+    } else {
+      applyEffects({career:-6, mood:-12, energy:-6});
+      log("The pitch flops. Awkward silence. Jacob shrinks a little. 😬", 'bad');
+      toast("Pitch flopped.");
+    }
+  }
+
+  function parkEvent(){
+    closeModal();
+    advance(30);
+    const r = Math.random();
+    if (r < 0.34){
+      applyEffects({money:+10, mood:+8});
+      log("Jacob finds a $10 bill on the path. Lucky day! 💸", 'good');
+      toast("Found $10!");
+    } else if (r < 0.67){
+      applyEffects({mood:+18, energy:+5});
+      log("A stranger's dog flops over for belly rubs. Pure serotonin. 🐕", 'good');
+      toast("Wholesome moment.");
+    } else {
+      applyEffects({mood:-6, energy:-6});
+      log("It starts to drizzle. Jacob jogs for cover, slightly grumpy. 🌧️", 'bad');
+      toast("Rained on.");
+    }
+  }
+
+  function lottery(){
+    closeModal();
+    s.money = Math.max(0, s.money - 2);
+    advance(10);
+    const r = Math.random();
+    if (r < 0.04){
+      applyEffects({money:+200, mood:+30});
+      log("JACKPOT. Jacob wins $200. He can't stop laughing. 🎉", 'gold');
+      toast("JACKPOT! +$200");
+    } else if (r < 0.2){
+      applyEffects({money:+8, mood:+6});
+      log("Small win — $8 back. Not bad for a scratch-off. 🎫", 'good');
+      toast("Won $8");
+    } else {
+      applyEffects({mood:-4});
+      log("Nothing. The ticket joins the others in the trash. 🗑️", 'bad');
+      toast("No luck.");
+    }
+  }
+
+  // ---------- Day cycle ----------
+  function endDay(){
+    if (dayOver) return;
+    dayOver = true;
+    const summary = `Day ${s.day} wrapped. Energy ${Math.round(s.energy)}%, Mood ${Math.round(s.mood)}%, Career ${Math.round(s.career)}%, $${s.money}.`;
+    log("— " + summary + " —", 'info');
+
+    // start next day
+    s.day += 1;
+    s.minutes = 7*60;
+    // overnight: if Jacob never slept properly, he's rough
+    if (s.energy < 30) { s.energy = clamp(s.energy + 30); log("A restless night. Jacob wakes up tired. 😵", 'bad'); }
+    else { s.energy = clamp(Math.max(s.energy, 80)); }
+    s.hunger = clamp(s.hunger + 15);
+    dayOver = false;
+    jacob.x = places[0].x + places[0].w/2;
+    jacob.y = places[0].y + places[0].h + 28;
+    log(`☀️ Day ${s.day} begins. Jacob stretches and starts again.`, 'good');
+    render();
+  }
+
+  // ---------- Modal ----------
+  let modalOpen = false;
+  function openScene(place){
+    if (modalOpen) return;
+    const scene = SCENES[place.id]();
+    $('dlgPlace').textContent = place.label;
+    $('dlgTitle').textContent = scene.title;
+    $('dlgText').textContent = scene.text;
+    const box = $('dlgChoices');
+    box.innerHTML = '';
+
+    scene.choices.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'choice';
+      const affordable = !c.need || (!c.need.money || s.money >= c.need.money);
+      btn.innerHTML = `<span>${c.label}</span><span class="cost">${prettyCost(c.cost)}</span>`;
+      if (!affordable){ btn.disabled = true; btn.style.opacity = .45; btn.style.cursor='not-allowed';
+        btn.querySelector('.cost').textContent = "can't afford"; }
+      btn.addEventListener('click', () => {
+        if (!affordable) return;
+        if (c.fn){ c.fn(); }
+        else {
+          closeModal();
+          applyEffects(c.eff);
+          if (c.msg) log(`${place.label}: ${c.msg}`, kindForEff(c.eff));
+          toast(c.msg ? c.msg.split('.')[0] : 'Done');
+        }
+      });
+      box.appendChild(btn);
+    });
+
+    // always allow leaving
+    const leave = document.createElement('button');
+    leave.className = 'choice'; leave.style.opacity = .8;
+    leave.innerHTML = `<span>Leave</span><span class="cost">↩</span>`;
+    leave.addEventListener('click', closeModal);
+    box.appendChild(leave);
+
+    $('modal').classList.add('show');
+    modalOpen = true;
+  }
+  function closeModal(){ $('modal').classList.remove('show'); modalOpen = false; cooldown = 30; }
+
+  function prettyCost(str){
+    return (str||'')
+      .replace(/\+(\d+)/g,'<span class="up">+$1</span>')
+      .replace(/-(\d+)/g,'<span class="dn">-$1</span>');
+  }
+  function kindForEff(e){
+    const net = (e.mood||0) + (e.energy||0)/2 + (e.money||0)/8 + (e.career||0);
+    return net >= 0 ? 'good' : 'bad';
+  }
+
+  // ---------- Input ----------
+  const keys = {};
+  window.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+    keys[k] = true;
+    if ((k === 'e' || k === ' ') && !modalOpen) tryInteract();
+    if (k === 'escape' && modalOpen) closeModal();
+  });
+  window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
+
+  // touch pad
+  document.querySelectorAll('.touchpad button').forEach(b => {
+    const dir = b.dataset.dir;
+    const map = { up:'arrowup', down:'arrowdown', left:'arrowleft', right:'arrowright' };
+    const press = (v) => {
+      if (dir === 'act'){ if (v && !modalOpen) tryInteract(); return; }
+      keys[map[dir]] = v;
+    };
+    b.addEventListener('touchstart', (e)=>{ e.preventDefault(); press(true); }, {passive:false});
+    b.addEventListener('touchend',   (e)=>{ e.preventDefault(); press(false); }, {passive:false});
+    b.addEventListener('mousedown', ()=>press(true));
+    b.addEventListener('mouseup',   ()=>press(false));
+    b.addEventListener('mouseleave',()=>press(false));
+  });
+
+  $('resetBtn').addEventListener('click', () => {
+    s = { ...DEFAULTS };
+    jacob.x = W/2; jacob.y = H/2; dayOver = false;
+    $('log').innerHTML = '';
+    closeModal();
+    log("A fresh start. Day 1, 7:00 AM. ☀️", 'good');
+    render();
+  });
+
+  let cooldown = 0;
+  function nearestPlace(){
+    for (const p of places){
+      const cx = p.x + p.w/2, cy = p.y + p.h/2;
+      const r = Math.hypot(jacob.x - cx, jacob.y - cy);
+      const reach = Math.max(p.w, p.h)/2 + 26;
+      if (r < reach) return p;
+    }
+    return null;
+  }
+  function tryInteract(){
+    if (cooldown > 0) return;
+    const p = nearestPlace();
+    if (p) openScene(p);
+    else toast("Walk up to a building to interact.");
+  }
+
+  // ---------- Movement & loop ----------
+  function update(){
+    if (cooldown > 0) cooldown--;
+    if (!modalOpen){
+      let dx = 0, dy = 0;
+      if (keys['arrowup']||keys['w']) dy -= 1;
+      if (keys['arrowdown']||keys['s']) dy += 1;
+      if (keys['arrowleft']||keys['a']) dx -= 1;
+      if (keys['arrowright']||keys['d']) dx += 1;
+      jacob.moving = (dx||dy) ? true : false;
+      if (jacob.moving){
+        const len = Math.hypot(dx,dy) || 1;
+        jacob.x += (dx/len) * jacob.speed;
+        jacob.y += (dy/len) * jacob.speed;
+        if (Math.abs(dx) > Math.abs(dy)) jacob.dir = dx>0?'right':'left';
+        else jacob.dir = dy>0?'down':'up';
+        jacob.step += 0.25;
+      }
+      // bounds
+      const pad = jacob.size;
+      jacob.x = Math.max(pad, Math.min(W-pad, jacob.x));
+      jacob.y = Math.max(pad+30, Math.min(H-pad, jacob.y));
+    }
+  }
+
+  // ---------- Drawing ----------
+  function drawGround(){
+    // grass base
+    ctx.fillStyle = '#16241c';
+    ctx.fillRect(0,0,W,H);
+    // subtle grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    for (let x=0;x<W;x+=32){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
+    for (let y=0;y<H;y+=32){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
+
+    // roads connecting the town (simple cross)
+    ctx.fillStyle = '#23262f';
+    ctx.fillRect(0, H/2-22, W, 44);
+    ctx.fillRect(W/2-22, 0, 44, H);
+    // road dashes
+    ctx.strokeStyle = 'rgba(255,206,90,0.5)';
+    ctx.setLineDash([12,12]); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  function drawPlaces(){
+    const near = nearestPlace();
+    for (const p of places){
+      // shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      roundRect(p.x+4, p.y+6, p.w, p.h, 10); ctx.fill();
+      // body
+      ctx.fillStyle = p.color;
+      roundRect(p.x, p.y, p.w, p.h, 10); ctx.fill();
+      // roof strip
+      ctx.fillStyle = 'rgba(255,255,255,0.10)';
+      roundRect(p.x, p.y, p.w, 16, 10); ctx.fill();
+      // glow if near
+      if (near === p){
+        ctx.save();
+        ctx.shadowColor = '#5ad1a0'; ctx.shadowBlur = 18;
+        ctx.strokeStyle = '#5ad1a0'; ctx.lineWidth = 2.5;
+        roundRect(p.x-2, p.y-2, p.w+4, p.h+4, 12); ctx.stroke();
+        ctx.restore();
+      }
+      // emoji + label
+      ctx.font = '26px serif'; ctx.textAlign = 'center'; ctx.textBaseline='middle';
+      ctx.fillText(p.emoji, p.x+p.w/2, p.y+p.h/2 - 4);
+      ctx.font = '600 12px Segoe UI, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.fillText(p.label, p.x+p.w/2, p.y+p.h - 12);
+
+      if (near === p){
+        ctx.fillStyle = '#5ad1a0';
+        ctx.font = '700 11px Segoe UI, sans-serif';
+        ctx.fillText('▲ press E', p.x+p.w/2, p.y - 12);
+      }
+    }
+  }
+
+  function drawJacob(){
+    const x = jacob.x, y = jacob.y, sz = jacob.size;
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath(); ctx.ellipse(x, y+sz, sz*0.8, sz*0.35, 0, 0, Math.PI*2); ctx.fill();
+
+    const bob = jacob.moving ? Math.sin(jacob.step)*2 : 0;
+    const legSwing = jacob.moving ? Math.sin(jacob.step)*4 : 0;
+
+    // legs
+    ctx.strokeStyle = '#2a3350'; ctx.lineWidth = 4; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(x-4, y+6); ctx.lineTo(x-4+legSwing, y+sz); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+4, y+6); ctx.lineTo(x+4-legSwing, y+sz); ctx.stroke();
+
+    // body (shirt)
+    ctx.fillStyle = '#6aa6ff';
+    roundRect(x-7, y-8+bob, 14, 18, 5); ctx.fill();
+
+    // arms
+    ctx.strokeStyle = '#6aa6ff'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(x-7, y-4+bob); ctx.lineTo(x-10-legSwing, y+6+bob); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+7, y-4+bob); ctx.lineTo(x+10+legSwing, y+6+bob); ctx.stroke();
+
+    // head
+    ctx.fillStyle = '#f0c9a0';
+    ctx.beginPath(); ctx.arc(x, y-16+bob, 8, 0, Math.PI*2); ctx.fill();
+    // hair
+    ctx.fillStyle = '#3a2a1a';
+    ctx.beginPath(); ctx.arc(x, y-18+bob, 8, Math.PI*1.05, Math.PI*1.95); ctx.fill();
+    ctx.fillRect(x-8, y-19+bob, 16, 4);
+
+    // face direction (eyes)
+    ctx.fillStyle = '#1a1a2a';
+    const fx = jacob.dir==='left'?-3 : jacob.dir==='right'?3 : 0;
+    if (jacob.dir !== 'up'){
+      ctx.beginPath(); ctx.arc(x-3+fx, y-16+bob, 1.4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+3+fx, y-16+bob, 1.4, 0, Math.PI*2); ctx.fill();
+    }
+
+    // name tag
+    ctx.font = '700 11px Segoe UI, sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle = 'rgba(10,14,28,0.8)';
+    roundRect(x-20, y-40+bob, 40, 15, 7); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText('Jacob', x, y-32+bob);
+  }
+
+  function drawNightTint(){
+    const m = s.minutes % (24*60);
+    // darkness: night before 6am and after 7pm
+    let dark = 0;
+    if (m < 6*60) dark = 0.5;
+    else if (m < 8*60) dark = 0.5 * (1 - (m-6*60)/(2*60));
+    else if (m > 19*60) dark = 0.5 * Math.min(1,(m-19*60)/(3*60));
+    if (dark > 0.01){
+      ctx.fillStyle = `rgba(8,12,40,${dark})`;
+      ctx.fillRect(0,0,W,H);
+    }
+  }
+
+  function loop(){
+    update();
+    ctx.clearRect(0,0,W,H);
+    drawGround();
+    drawPlaces();
+    drawJacob();
+    drawNightTint();
+    requestAnimationFrame(loop);
+  }
+
+  // ---------- Boot ----------
+  jacob.x = places[0].x + places[0].w/2;
+  jacob.y = places[0].y + places[0].h + 28;
+  log("☀️ 7:00 AM. Jacob wakes up. A whole day ahead — what'll it be?", 'good');
+  log("Tip: walk to a building and press E to decide what Jacob does.", 'info');
+  render();
+  loop();
+})();
+</script>
+</body>
+</html>
